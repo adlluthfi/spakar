@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% block title %}Hasil Diagnosa – Sistem Pakar Penyakit Jagung{% endblock %}
+
+{% block head_extra %}
+<style>
+  .hasil-header {
+    background: linear-gradient(135deg, #1b4332, #2d6a4f);
+    color: #fff;
+    padding: 2.5rem 0 2rem;
+  }
+
+  /* Result card */
+  .penyakit-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 3px 16px rgba(0,0,0,.1);
+    overflow: hidden;
+    transition: transform .2s;
+  }
+  .penyakit-card:hover { transform: translateY(-3px); }
+
+  .penyakit-card-header {
+    padding: 1rem 1.4rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .bg-warning-grad  { background: linear-gradient(135deg, #c77d0a, #f4a261); }
+  .bg-danger-grad   { background: linear-gradient(135deg, #a30000, #e63946); }
+  .bg-dark-grad     { background: linear-gradient(135deg, #212529, #495057); }
+  .bg-secondary-grad{ background: linear-gradient(135deg, #3d405b, #6c757d); }
+  .bg-success-grad  { background: linear-gradient(135deg, #1b4332, #52b788); }
+
+  .penyakit-card .card-body { padding: 1.4rem; }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    margin-bottom: .65rem;
+    font-size: .92rem;
+  }
+  .info-label {
+    font-weight: 600;
+    color: var(--green-dark);
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .treatment-list { list-style: none; padding: 0; margin: 0; }
+  .treatment-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    background: var(--green-pale);
+    border-left: 4px solid var(--green-mid);
+    border-radius: 0 8px 8px 0;
+    padding: .6rem .9rem;
+    margin-bottom: .5rem;
+    font-size: .92rem;
+  }
+  .treatment-list li i { color: var(--green-mid); flex-shrink: 0; margin-top: .15rem; }
+
+  /* Gejala tag */
+  .tag-gejala {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: #fff;
+    border: 1.5px solid var(--green-light);
+    border-radius: 20px;
+    padding: .3em .8em;
+    font-size: .82rem;
+    color: var(--green-dark);
+    font-weight: 500;
+  }
+  .tag-gejala.missing {
+    background: #fff5f5;
+    border-color: #f5c6cb;
+    color: #842029;
+  }
+
+  /* Confidence bar */
+  .confidence-bar-wrap {
+    background: #e9ecef;
+    border-radius: 20px;
+    height: 10px;
+    overflow: hidden;
+    margin-top: .35rem;
+  }
+  .confidence-bar {
+    height: 100%;
+    border-radius: 20px;
+    transition: width .6s ease;
+  }
+  .bar-high       { background: linear-gradient(90deg, #2d6a4f, #52b788); }
+  .bar-medium-high{ background: linear-gradient(90deg, #e9a000, #f4c430); }
+  .bar-medium     { background: linear-gradient(90deg, #e76f51, #f4a261); }
+  .bar-low        { background: linear-gradient(90deg, #adb5bd, #ced4da); }
+
+  .confidence-label-high        { color: #2d6a4f; }
+  .confidence-label-medium-high { color: #b07d00; }
+  .confidence-label-medium      { color: #c44b2b; }
+  .confidence-label-low         { color: #6c757d; }
+
+  /* Pencegahan */
+  .prevention-list { list-style: none; padding: 0; margin: 0; }
+  .prevention-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    background: #fff8f0;
+    border-left: 4px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: .6rem .9rem;
+    margin-bottom: .5rem;
+    font-size: .9rem;
+  }
+  .prevention-list li i { color: var(--amber-dark); flex-shrink: 0; margin-top: .15rem; }
+
+  /* No result */
+  .no-result-box {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    padding: 3rem;
+    text-align: center;
+  }
+
+  /* Rule display */
+  .rule-box {
+    background: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 8px;
+    padding: .6rem 1rem;
+    font-size: .82rem;
+    font-family: monospace;
+    color: #495057;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══ HEADER ═════════════════════════════════════════════ -->
+<div class="hasil-header">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('index') }}" class="text-white-50 text-decoration-none">Beranda</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('konsultasi') }}" class="text-white-50 text-decoration-none">Konsultasi</a>
+        </li>
+        <li class="breadcrumb-item active text-white">Hasil Diagnosa</li>
+      </ol>
+    </nav>
+    <h1 class="h2 fw-bold mb-1">
+      <i class="bi bi-clipboard2-check me-2"></i>Hasil Diagnosa
+    </h1>
+    <p class="mb-0 opacity-75">
+      Berikut hasil analisis sistem berdasarkan gejala yang Anda masukkan.
+    </p>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <!-- ── Info Umur ───────────────────────────────── -->
+  {% if umur_hst %}
+  <div class="alert border-0 rounded-3 d-flex gap-2 align-items-center mb-3"
+       style="background:#e8f4ff;border-left:4px solid #0d6efd !important">
+    <i class="bi bi-calendar3 text-primary"></i>
+    <span>Umur tanaman yang Anda masukkan: <strong>{{ umur_hst }} HST</strong></span>
+  </div>
+  {% endif %}
+  <!-- ── Gejala yang dipilih ─────────────────────────── -->
+  <div class="card mb-4">
+    <div class="card-header-green">
+      <i class="bi bi-list-check me-2"></i>Gejala yang Anda Laporkan
+    </div>
+    <div class="card-body">
+      <div class="d-flex flex-wrap gap-2">
+        {% for kode, label in gejala_terpilih.items() %}
+        <span class="tag-gejala">
+          <i class="bi bi-check-circle-fill text-success"></i>
+          <strong>{{ kode }}</strong> – {{ label }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADA HASIL ════════════════════════════════════ -->
+  {% if hasil %}
+
+  <div class="alert alert-success border-0 rounded-3 d-flex gap-3 align-items-start mb-4" role="alert">
+    <i class="bi bi-check-circle-fill fs-5 flex-shrink-0 mt-1"></i>
+    <div>
+      Sistem menguji <strong>{{ hasil|length }} hipotesis penyakit/hama</strong>
+      berdasarkan gejala yang Anda laporkan dengan metode <em>backward chaining</em>.
+      Hipotesis yang <strong>terbukti</strong> ditampilkan di urutan teratas.
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for p in hasil %}
+    {% set warna_map = {
+        'warning': 'bg-warning-grad',
+        'danger':  'bg-danger-grad',
+        'dark':    'bg-dark-grad',
+        'secondary':'bg-secondary-grad',
+        'success': 'bg-success-grad'
+    } %}
+    {% set header_class = warna_map.get(p.warna, 'bg-success-grad') %}
+
+    <div class="col-lg-6">
+      <div class="penyakit-card card h-100">
+
+        <!-- Card header -->
+        <div class="penyakit-card-header {{ header_class }}">
+          <span style="font-size:1.4rem">{{ p.ikon }}</span>
+          <div style="flex:1">
+            <div>{{ p.nama }}</div>
+            <div style="font-size:.75rem; font-weight:500; opacity:.85">{{ p.kode }}</div>
+          </div>
+          <!-- Confidence badge -->
+          <div class="text-end">
+            <div style="font-size:1.5rem; font-weight:800; line-height:1">{{ p.persen }}%</div>
+            <div style="font-size:.7rem; opacity:.85">{{ p.label_confidence }}</div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Confidence bar -->
+          <div class="mb-3">
+            <div class="small mb-1">
+              <span class="badge {% if p.is_terbukti %}bg-success{% else %}bg-secondary{% endif %}">
+                Status Hipotesis: {{ p.status_backward }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="fw-semibold confidence-label-{{ p.confidence_level }}">
+                {{ p.label_confidence }} ({{ p.matched }}/{{ p.total }} gejala cocok)
+              </small>
+            </div>
+            <div class="confidence-bar-wrap">
+              <div class="confidence-bar bar-{{ p.confidence_level }}"
+                   data-width="{{ p.persen }}"></div>
+            </div>
+          </div>
+
+          <!-- Umur Warning -->
+          {% if p.umur_warning %}
+          <div class="alert alert-warning border-0 rounded-3 py-2 px-3 mb-3 small d-flex gap-2">
+            <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+            <span>{{ p.umur_warning }}</span>
+          </div>
+          {% endif %}
+
+          <!-- Kecocokan gejala -->
+          {% if p.gejala_kurang %}
+          <div class="mb-3">
+            <div class="small fw-semibold mb-1">Gejala cocok:</div>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              {% for g in p.gejala_cocok %}
+              <span class="tag-gejala"><i class="bi bi-check2"></i> {{ g }}</span>
+              {% endfor %}
+            </div>
+            <div class="small fw-semibold mb-1 text-danger">Gejala belum dilaporkan:</div>
+            <div class="d-flex flex-wrap gap-1">
+              {% for g in p.gejala_kurang %}
+              <span class="tag-gejala missing"><i class="bi bi-x"></i> {{ g }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Penyebab -->
+          <div class="info-row">
+            <span class="info-label"><i class="bi bi-bug me-1"></i>Penyebab</span>
+            <span class="text-muted">{{ p.penyebab }}</span>
+          </div>
+
+          <!-- Deskripsi -->
+          <div class="info-row">
+            <span class="info-label"><i class="bi bi-info me-1"></i>Deskripsi</span>
+            <span class="text-muted">{{ p.deskripsi }}</span>
+          </div>
+
+          <!-- Fase rentan -->
+          <div class="info-row">
+            <span class="info-label"><i class="bi bi-calendar3 me-1"></i>Fase Rentan</span>
+            <span class="text-muted">{{ p.umur_tanaman[0] }}–{{ p.umur_tanaman[1] }} HST</span>
+          </div>
+
+          <!-- Rule yang terpenuhi -->
+          <div class="info-row">
+            <span class="info-label"><i class="bi bi-diagram-3 me-1"></i>Aturan</span>
+            <div class="rule-box">
+              IF {{ p.rule_conditions | join(' AND ') }} THEN {{ p.kode }}
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- Pengobatan (Kuratif) -->
+          <h6 class="fw-bold text-success mb-2">
+            <i class="bi bi-capsule me-1"></i>Rekomendasi Penanganan (Kuratif)
+          </h6>
+          <ul class="treatment-list mb-3">
+            {% for langkah in p.pengobatan %}
+            <li>
+              <i class="bi bi-arrow-right-circle-fill"></i>
+              <span>{{ langkah | safe }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <!-- Pencegahan (Preventif) -->
+          <h6 class="fw-bold mb-2" style="color:var(--amber-dark)">
+            <i class="bi bi-shield-check me-1"></i>Pencegahan (Preventif)
+          </h6>
+          <ul class="prevention-list">
+            {% for langkah in p.pencegahan %}
+            <li>
+              <i class="bi bi-lightbulb-fill"></i>
+              <span>{{ langkah | safe }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+
+        </div><!-- /card-body -->
+      </div><!-- /penyakit-card -->
+    </div><!-- /col -->
+    {% endfor %}
+  </div><!-- /row -->
+
+  <!-- ══ TIDAK ADA HASIL ══════════════════════════════ -->
+  {% else %}
+
+  <div class="no-result-box">
+    <div style="font-size:4rem">🔍</div>
+    <h4 class="fw-bold mt-3 mb-2">Penyakit Tidak Teridentifikasi</h4>
+    <p class="text-muted mb-4" style="max-width:480px; margin:auto;">
+      Tidak ada penyakit yang cocok dengan kombinasi gejala yang Anda masukkan
+      berdasarkan basis pengetahuan saat ini. Pastikan Anda telah memilih
+      <strong>semua</strong> gejala yang tampak, atau konsultasikan langsung dengan
+      petugas pertanian setempat.
+    </p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+      <a href="{{ url_for('konsultasi') }}" class="btn btn-primary-green px-4">
+        <i class="bi bi-arrow-repeat me-2"></i>Ulangi Konsultasi
+      </a>
+      <a href="{{ url_for('basis_pengetahuan') }}" class="btn btn-outline-secondary px-4">
+        <i class="bi bi-journal-text me-2"></i>Lihat Basis Pengetahuan
+      </a>
+    </div>
+  </div>
+
+  {% endif %}
+
+  <!-- ── Aksi bawah ─────────────────────────────────── -->
+  <div class="d-flex flex-wrap gap-3 justify-content-center mt-5 mb-2">
+    <a href="{{ url_for('konsultasi') }}" class="btn btn-outline-success px-4">
+      <i class="bi bi-arrow-repeat me-2"></i>Konsultasi Ulang
+    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-primary-green px-4">
+      <i class="bi bi-house-door me-2"></i>Kembali ke Beranda
+    </a>
+    <button onclick="window.print()" class="btn btn-outline-secondary px-4">
+      <i class="bi bi-printer me-2"></i>Cetak Hasil
+    </button>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.confidence-bar[data-width]').forEach(function(bar) {
+    bar.style.width = bar.dataset.width + '%';
+  });
+</script>
+{% endblock %}
