@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      .title { font: 700 22px 'DejaVu Sans', Arial, sans-serif; fill: #1b1b1b; }
+      .label { font: 600 14px 'DejaVu Sans', Arial, sans-serif; fill: #1b1b1b; }
+      .text { font: 400 13px 'DejaVu Sans', Arial, sans-serif; fill: #1b1b1b; }
+      .box { fill: #f6f1e7; stroke: #3b3b3b; stroke-width: 1.5; rx: 10; }
+      .box2 { fill: #e8f2ff; stroke: #3b3b3b; stroke-width: 1.5; rx: 10; }
+      .box3 { fill: #eaf7ef; stroke: #3b3b3b; stroke-width: 1.5; rx: 10; }
+      .box4 { fill: #fff1f1; stroke: #3b3b3b; stroke-width: 1.5; rx: 10; }
+      .arrow { stroke: #2f2f2f; stroke-width: 1.6; fill: none; marker-end: url(#arrowhead); }
+      .dashed { stroke-dasharray: 6 4; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2f2f2f" />
+    </marker>
+  </defs>
+
+  <text x="40" y="40" class="title">Pipeline Diagnosa (Inti Program)</text>
+
+  <!-- Left column: Input -->
+  <rect x="40" y="80" width="320" height="140" class="box" />
+  <text x="60" y="110" class="label">Input</text>
+  <text x="60" y="135" class="text">- gejala_dipilih</text>
+  <text x="60" y="155" class="text">- umur_hst (opsional)</text>
+  <text x="60" y="175" class="text">- validasi nilai umur</text>
+
+  <!-- Middle column: Knowledge base -->
+  <rect x="440" y="80" width="320" height="220" class="box2" />
+  <text x="460" y="110" class="label">Inference (Backward Chaining)</text>
+  <text x="460" y="135" class="text">backward_chaining(gejala, umur)</text>
+  <text x="460" y="155" class="text">- bentuk fakta (set)</text>
+  <text x="460" y="175" class="text">- _prove_goal() rekursif</text>
+  <text x="460" y="195" class="text">- hitung kecocokan & persen</text>
+  <text x="460" y="215" class="text">- label confidence</text>
+  <text x="460" y="235" class="text">- umur_warning jika beda fase</text>
+
+  <rect x="440" y="340" width="320" height="170" class="box" />
+  <text x="460" y="370" class="label">Knowledge Base</text>
+  <text x="460" y="395" class="text">- GEJALA</text>
+  <text x="460" y="415" class="text">- PENYAKIT</text>
+  <text x="460" y="435" class="text">- RULES (IF-THEN)</text>
+
+  <!-- Right column: Output -->
+  <rect x="840" y="80" width="320" height="180" class="box4" />
+  <text x="860" y="110" class="label">Hasil Diagnosa</text>
+  <text x="860" y="135" class="text">- daftar penyakit + skor</text>
+  <text x="860" y="155" class="text">- status terbukti</text>
+  <text x="860" y="175" class="text">- rekomendasi</text>
+  <text x="860" y="195" class="text">- warning umur</text>
+  <text x="860" y="215" class="text">- urutkan berdasarkan skor</text>
+
+  <!-- Arrows -->
+  <line x1="360" y1="150" x2="440" y2="150" class="arrow" />
+
+  <line x1="600" y1="300" x2="600" y2="340" class="arrow" />
+
+  <line x1="760" y1="150" x2="840" y2="150" class="arrow" />
+
+</svg>

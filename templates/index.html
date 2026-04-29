@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}Beranda – Sistem Pakar Penyakit Jagung{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 55%, #52b788 100%);
+    color: #fff;
+    padding: 4.5rem 0 3.5rem;
+  }
+  .hero h1 { font-size: 2.6rem; font-weight: 800; line-height: 1.2; }
+  .hero p  { font-size: 1.1rem; opacity: .9; max-width: 600px; }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 20px;
+    padding: .3em .85em;
+    font-size: .85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    letter-spacing: .5px;
+  }
+
+  /* Stat cards */
+  .stat-card {
+    border-radius: 14px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+  }
+  .stat-card .stat-num { font-size: 2.5rem; line-height: 1; }
+  .stat-card .stat-lbl { font-size: .9rem; opacity: .9; margin-top: .25rem; }
+  .bg-g1 { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+  .bg-g2 { background: linear-gradient(135deg, #e76f51, #f4a261); }
+  .bg-g3 { background: linear-gradient(135deg, #264653, #457b9d); }
+
+  /* Steps */
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--green-mid);
+    color: #fff;
+    font-size: 1.2rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Disease preview cards */
+  .disease-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: #fff;
+    border: 1.5px solid var(--green-pale);
+    border-radius: 10px;
+    padding: .55rem 1rem;
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--green-dark);
+    box-shadow: 0 1px 5px rgba(0,0,0,.06);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .disease-pill:hover { border-color: var(--green-light); box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO ══════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="container">
+    <span class="hero-badge">🌽 Sistem Pakar Berbasis Web</span>
+    <h1>Diagnosa Penyakit<br>Tanaman Jagung</h1>
+    <p class="mt-3">
+      Identifikasi penyakit dan hama pada tanaman jagung Anda secara cepat dan akurat
+      berdasarkan gejala yang muncul, serta dapatkan rekomendasi perawatan yang tepat.
+    </p>
+    <div class="mt-4 d-flex flex-wrap gap-3">
+      <a href="{{ url_for('konsultasi') }}" class="btn btn-amber btn-lg px-4 py-2">
+        <i class="bi bi-clipboard2-pulse me-2"></i>Mulai Konsultasi
+      </a>
+      <a href="{{ url_for('basis_pengetahuan') }}" class="btn btn-outline-light btn-lg px-4 py-2">
+        <i class="bi bi-journal-text me-2"></i>Basis Pengetahuan
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATISTIK ══════════════════════════════════════════ -->
+<section class="container mt-n3" style="margin-top: -1.5rem !important;">
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="stat-card bg-g1">
+        <div class="stat-num">{{ total_penyakit }}</div>
+        <div class="stat-lbl">Penyakit &amp; Hama Terdeteksi</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card bg-g2">
+        <div class="stat-num">{{ total_gejala }}</div>
+        <div class="stat-lbl">Gejala dalam Basis Pengetahuan</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card bg-g3">
+        <div class="stat-num">{{ total_rule }}</div>
+        <div class="stat-lbl">Aturan IF–THEN</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LATAR BELAKANG ═══════════════════════════════════ -->
+<section class="container mt-5">
+  <div class="section-title">Latar Belakang</div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <p>
+        Sistem pakar (<em>expert system</em>) merupakan sistem berbasis komputer yang dirancang untuk mengadopsi
+        pengetahuan dan pengalaman seorang pakar ke dalam sebuah program, sehingga komputer dapat menyelesaikan
+        suatu permasalahan sebagaimana yang dilakukan oleh seorang ahli pada bidang tertentu.
+      </p>
+      <p>
+        Jagung merupakan salah satu komoditas pangan utama di Indonesia yang memiliki peranan penting dalam sektor
+        pertanian. Namun, dalam proses budidayanya, tanaman jagung rentan terhadap berbagai jenis penyakit yang
+        dapat menurunkan produktivitas dan kualitas hasil panen.
+      </p>
+      <p>
+        Melalui penerapan sistem pakar ini, pengetahuan dari pakar pertanian dapat dimanfaatkan oleh masyarakat
+        luas, khususnya bagi petani pemula yang belum memiliki pengalaman dalam menangani penyakit tanaman jagung.
+      </p>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header-green">
+          <i class="bi bi-person-badge me-2"></i>Sumber Pengetahuan
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <div style="font-size:2.5rem">👨‍🌾</div>
+            <div>
+              <h5 class="mb-1">Bapak Sijabat</h5>
+              <p class="text-muted mb-1 small">Petani berpengalaman &gt;30 tahun</p>
+              <p class="mb-0 small">
+                <i class="bi bi-geo-alt text-success me-1"></i>
+                Kab. Simalungun &amp; Kab. Karo – Sumatera Utara
+              </p>
+            </div>
+          </div>
+          <hr />
+          <p class="small mb-0">
+            Metode akuisisi: <strong>wawancara langsung</strong> dengan pakar dan
+            <strong>analisis dokumen</strong> dari jurnal serta literatur terkait penyakit
+            tanaman jagung.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CARA PENGGUNAAN ════════════════════════════════════ -->
+<section class="container mt-5">
+  <div class="section-title">Cara Penggunaan</div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100 p-3">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-circle">1</div>
+          <div>
+            <h6 class="fw-bold mb-1">Pilih Gejala</h6>
+            <p class="small text-muted mb-0">
+              Perhatikan kondisi tanaman jagung Anda lalu centang gejala-gejala yang
+              sesuai dengan apa yang Anda temukan di lapangan.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 p-3">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-circle">2</div>
+          <div>
+            <h6 class="fw-bold mb-1">Proses Diagnosa</h6>
+            <p class="small text-muted mb-0">
+              Sistem akan memproses informasi menggunakan metode <em>backward chaining</em>
+              berdasarkan aturan IF–THEN yang telah disusun oleh pakar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 p-3">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-circle">3</div>
+          <div>
+            <h6 class="fw-bold mb-1">Lihat Hasil &amp; Solusi</h6>
+            <p class="small text-muted mb-0">
+              Sistem menampilkan jenis penyakit yang terdeteksi beserta deskripsi,
+              penyebab, dan langkah penanganan yang direkomendasikan.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PENYAKIT YANG DIDETEKSI ════════════════════════════ -->
+<section class="container mt-5 mb-4">
+  <div class="section-title">Penyakit &amp; Hama yang Dapat Dideteksi</div>
+  <div class="d-flex flex-wrap gap-2">
+    <span class="disease-pill">🟡 Bulai</span>
+    <span class="disease-pill">🟤 Karat Daun</span>
+    <span class="disease-pill">🟠 Hawar Daun</span>
+    <span class="disease-pill">⚫ Busuk Batang</span>
+    <span class="disease-pill">🔵 Busuk Tongkol</span>
+    <span class="disease-pill">🟢 Hama Ulat Grayak</span>
+  </div>
+
+  <div class="text-center mt-5">
+    <a href="{{ url_for('konsultasi') }}" class="btn btn-primary-green btn-lg px-5 py-2">
+      <i class="bi bi-clipboard2-pulse me-2"></i>Mulai Konsultasi Sekarang
+    </a>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Sistem Pakar Penyakit Jagung{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --green-dark:   #1b4332;
+      --green-mid:    #2d6a4f;
+      --green-light:  #52b788;
+      --green-pale:   #d8f3dc;
+      --amber:        #f4a261;
+      --amber-dark:   #e76f51;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5faf6;
+      color: #212529;
+    }
+
+    /* ── Navbar ─────────────────────────────────── */
+    .navbar {
+      background: var(--green-dark) !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: .3px;
+    }
+    .navbar-brand span { color: var(--amber); }
+    .nav-link { color: rgba(255,255,255,.85) !important; font-weight: 500; }
+    .nav-link:hover, .nav-link.active { color: var(--amber) !important; }
+
+    /* ── Cards ──────────────────────────────────── */
+    .card {
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .card-header-green {
+      background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+      color: #fff;
+      border-radius: 14px 14px 0 0 !important;
+      padding: 1rem 1.4rem;
+      font-weight: 600;
+    }
+
+    /* ── Buttons ────────────────────────────────── */
+    .btn-primary-green {
+      background: var(--green-mid);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background .2s;
+    }
+    .btn-primary-green:hover { background: var(--green-dark); color: #fff; }
+
+    .btn-amber {
+      background: var(--amber);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background .2s;
+    }
+    .btn-amber:hover { background: var(--amber-dark); color: #fff; }
+
+    /* ── Section title ──────────────────────────── */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      border-left: 5px solid var(--amber);
+      padding-left: .75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Footer ─────────────────────────────────── */
+    footer {
+      background: var(--green-dark);
+      color: rgba(255,255,255,.7);
+      padding: 1.5rem 0;
+      font-size: .875rem;
+    }
+    footer a { color: var(--amber); text-decoration: none; }
+
+    /* ── Misc ───────────────────────────────────── */
+    .badge-gejala {
+      background: var(--green-pale);
+      color: var(--green-dark);
+      border: 1px solid var(--green-light);
+      border-radius: 20px;
+      padding: .35em .75em;
+      font-size: .82rem;
+      font-weight: 500;
+    }
+  </style>
+
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+<!-- ══ NAVBAR ═════════════════════════════════════════════ -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand text-white" href="{{ url_for('index') }}">
+      🌽 Pakar<span>Jagung</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
+            aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-1">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+             href="{{ url_for('index') }}">
+            <i class="bi bi-house-door"></i> Beranda
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'konsultasi' %}active{% endif %}"
+             href="{{ url_for('konsultasi') }}">
+            <i class="bi bi-clipboard2-pulse"></i> Konsultasi
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'basis_pengetahuan' %}active{% endif %}"
+             href="{{ url_for('basis_pengetahuan') }}">
+            <i class="bi bi-journal-text"></i> Basis Pengetahuan
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ CONTENT ════════════════════════════════════════════ -->
+<main class="py-4">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ══ FOOTER ════════════════════════════════════════════ -->
+<footer class="text-center mt-4">
+  <div class="container">
+    <p class="mb-1">
+      <strong class="text-white">Sistem Pakar Penyakit Tanaman Jagung</strong>
+    </p>
+    <p class="mb-0">
+      Sumber pengetahuan: Bapak Sijabat (Petani, &gt;30 tahun pengalaman) &bull;
+      Kabupaten Simalungun &amp; Karo, Sumatera Utara
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

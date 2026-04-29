@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}Konsultasi – Sistem Pakar Penyakit Jagung{% endblock %}
+
+{% block head_extra %}
+<style>
+  .konsultasi-header {
+    background: linear-gradient(135deg, #1b4332, #2d6a4f);
+    color: #fff;
+    padding: 2.5rem 0 2rem;
+  }
+
+  /* Checkbox cards */
+  .gejala-check { display: none; }
+  .gejala-label {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    background: #fff;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: .85rem 1rem;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+    user-select: none;
+    height: 100%;
+  }
+  .gejala-label:hover {
+    border-color: var(--green-light);
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  }
+  .gejala-check:checked + .gejala-label {
+    border-color: var(--green-mid);
+    background: var(--green-pale);
+    box-shadow: 0 2px 10px rgba(45,106,79,.2);
+  }
+  .check-icon {
+    width: 22px; height: 22px; flex-shrink: 0;
+    border: 2px solid #adb5bd;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem;
+    margin-top: .1rem;
+    transition: all .2s;
+  }
+  .gejala-check:checked + .gejala-label .check-icon {
+    background: var(--green-mid);
+    border-color: var(--green-mid);
+    color: #fff;
+  }
+  .gejala-text { font-size: .9rem; line-height: 1.35; color: #333; }
+  .gejala-kode { font-size: .7rem; font-weight: 700; color: var(--green-mid); }
+
+  .group-header {
+    background: var(--green-pale);
+    border-left: 4px solid var(--green-mid);
+    border-radius: 8px;
+    padding: .6rem 1rem;
+    font-weight: 700;
+    color: var(--green-dark);
+    font-size: 1rem;
+    margin-bottom: .75rem;
+  }
+
+  /* Counter badge */
+  #counter-badge {
+    background: var(--green-mid);
+    color: #fff;
+    border-radius: 20px;
+    padding: .25em .7em;
+    font-weight: 700;
+    font-size: .85rem;
+    transition: background .2s;
+  }
+  #counter-badge.has-items { background: var(--amber-dark); }
+
+  /* Sticky bottom bar */
+  .sticky-bar {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    border-top: 2px solid var(--green-pale);
+    padding: .9rem 0;
+    z-index: 100;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══ HEADER ═════════════════════════════════════════════ -->
+<div class="konsultasi-header">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('index') }}" class="text-white-50 text-decoration-none">Beranda</a>
+        </li>
+        <li class="breadcrumb-item active text-white">Konsultasi</li>
+      </ol>
+    </nav>
+    <h1 class="h2 fw-bold mb-1">
+      <i class="bi bi-clipboard2-pulse me-2"></i>Form Konsultasi
+    </h1>
+    <p class="mb-0 opacity-75">
+      Centang semua gejala yang Anda temukan pada tanaman jagung Anda,
+      lalu klik <strong>Diagnosa</strong>.
+    </p>
+  </div>
+</div>
+
+<!-- ══ FORM ═══════════════════════════════════════════════ -->
+<div class="container mt-4">
+  <div class="alert alert-info border-0 rounded-3 d-flex gap-3 align-items-start" role="alert">
+    <i class="bi bi-info-circle-fill fs-5 mt-1 flex-shrink-0"></i>
+    <div>
+      <strong>Petunjuk:</strong> Perhatikan kondisi tanaman jagung Anda secara menyeluruh.
+      Centang <em>semua</em> gejala yang sesuai &mdash; bisa lebih dari satu kelompok.
+      Sistem menguji <strong>hipotesis penyakit</strong> menggunakan
+      <em>backward chaining</em> (penalaran dari tujuan ke gejala pendukung).
+      Hipotesis yang belum terpenuhi seluruh gejalanya tetap ditampilkan sebagai referensi.
+    </div>
+  </div>
+
+  <form action="{{ url_for('diagnosa') }}" method="POST" id="formKonsultasi">
+
+    <!-- ── Umur Tanaman ────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header-green">
+        <i class="bi bi-calendar3 me-2"></i>Informasi Umur Tanaman
+        <span class="fw-normal opacity-75 ms-1" style="font-size:.85rem">(opsional namun disarankan)</span>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted mb-3">
+          Umur tanaman membantu sistem memvalidasi kesesuaian fase pertumbuhan dengan kemungkinan penyakit.
+          Kosongkan jika tidak diketahui.
+        </p>
+        <div class="row align-items-end g-3">
+          <div class="col-md-4">
+            <label for="umur_hst" class="form-label fw-semibold">
+              Umur Tanaman <span class="text-muted fw-normal">(HST)</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-seedling"></i></span>
+              <input type="number" class="form-control" id="umur_hst" name="umur_hst"
+                     min="1" max="365" placeholder="mis. 21">
+              <span class="input-group-text">HST</span>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-2" style="font-size:.78rem">
+              <span class="badge rounded-pill fw-normal py-2 px-3"
+                    style="background:#d8f3dc;color:#1b4332;border:1px solid #52b788">
+                🌱 0–30 HST &mdash; Vegetatif Awal (Rawan Bulai, Ulat Grayak)
+              </span>
+              <span class="badge rounded-pill fw-normal py-2 px-3"
+                    style="background:#fff3cd;color:#664d03;border:1px solid #ffc107">
+                🌿 30–60 HST &mdash; Vegetatif Akhir &amp; Generatif (Rawan Karat Daun, Hawar Daun)
+              </span>
+              <span class="badge rounded-pill fw-normal py-2 px-3"
+                    style="background:#f8d7da;color:#58151c;border:1px solid #f5c2c7">
+                🌽 60–90 HST &mdash; Pengisian Biji (Rawan Busuk Batang &amp; Tongkol)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% for kelompok in kelompok %}
+    <div class="mb-4">
+      <div class="group-header">
+        {{ kelompok.icon }} {{ kelompok.label }}
+      </div>
+      <div class="row g-2">
+        {% for kode in kelompok.kode %}
+        {% if kode in gejala %}
+        <div class="col-md-6 col-lg-4 d-flex">
+          <input class="gejala-check" type="checkbox"
+                 name="gejala" value="{{ kode }}" id="{{ kode }}"
+                 onchange="updateCounter()">
+          <label class="gejala-label w-100" for="{{ kode }}">
+            <div class="check-icon"><i class="bi bi-check2"></i></div>
+            <div>
+              <div class="gejala-kode">{{ kode }}</div>
+              <div class="gejala-text">{{ gejala[kode] }}</div>
+            </div>
+          </label>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- ── Sticky bottom bar ─────────────────────────── -->
+    <div class="sticky-bar">
+      <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fw-semibold text-muted">Gejala dipilih:</span>
+          <span id="counter-badge">0</span>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAll()">
+            <i class="bi bi-x-circle me-1"></i>Reset
+          </button>
+          <button type="submit" class="btn btn-primary-green px-4">
+            <i class="bi bi-search me-2"></i>Diagnosa Sekarang
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function updateCounter() {
+    const checked = document.querySelectorAll('.gejala-check:checked').length;
+    const badge   = document.getElementById('counter-badge');
+    badge.textContent = checked;
+    badge.classList.toggle('has-items', checked > 0);
+  }
+
+  function clearAll() {
+    document.querySelectorAll('.gejala-check:checked').forEach(cb => cb.checked = false);
+    updateCounter();
+  }
+
+  // Warn before submit if nothing selected
+  document.getElementById('formKonsultasi').addEventListener('submit', function(e) {
+    const checked = document.querySelectorAll('.gejala-check:checked').length;
+    if (checked === 0) {
+      e.preventDefault();
+      alert('Silakan pilih minimal satu gejala terlebih dahulu.');
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Basis Pengetahuan – Sistem Pakar Penyakit Jagung{% endblock %}
+
+{% block head_extra %}
+<style>
+  .bp-header {
+    background: linear-gradient(135deg, #1b4332, #2d6a4f);
+    color: #fff;
+    padding: 2.5rem 0 2rem;
+  }
+  .table-gejala th { background: var(--green-mid); color: #fff; }
+  .table-rule  th  { background: #264653;           color: #fff; }
+
+  .rule-row td:first-child { font-weight: 700; color: var(--green-mid); }
+  .rule-cond { font-family: monospace; font-size: .88rem; }
+
+  .penyakit-pill {
+    display: inline-block;
+    background: var(--green-pale);
+    border: 1px solid var(--green-light);
+    border-radius: 20px;
+    padding: .25em .75em;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--green-dark);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="bp-header">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('index') }}" class="text-white-50 text-decoration-none">Beranda</a>
+        </li>
+        <li class="breadcrumb-item active text-white">Basis Pengetahuan</li>
+      </ol>
+    </nav>
+    <h1 class="h2 fw-bold mb-1">
+      <i class="bi bi-journal-text me-2"></i>Basis Pengetahuan
+    </h1>
+    <p class="mb-0 opacity-75">
+      Daftar gejala, penyakit, dan aturan IF–THEN yang digunakan oleh sistem pakar.
+    </p>
+  </div>
+</div>
+
+<div class="container mt-4">
+
+  <!-- ── Tabel Gejala ────────────────────────────────── -->
+  <div class="section-title">Daftar Gejala</div>
+  <div class="card mb-5">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover table-gejala mb-0">
+          <thead>
+            <tr>
+              <th style="width:80px">Kode</th>
+              <th>Gejala</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for kode, label in gejala.items() %}
+            <tr>
+              <td class="fw-bold text-success">{{ kode }}</td>
+              <td>{{ label }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Daftar Penyakit ────────────────────────────── -->
+  <div class="section-title">Daftar Penyakit &amp; Hama</div>
+  <div class="row g-3 mb-5">
+    {% for kode, p in penyakit.items() %}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header-green d-flex justify-content-between align-items-center">
+          <span>{{ p.ikon }} {{ p.nama }}</span>
+          <span class="badge bg-white text-dark" style="font-size:.75rem">{{ kode }}</span>
+        </div>
+        <div class="card-body small">
+          <p class="mb-1"><strong>Penyebab:</strong> {{ p.penyebab }}</p>
+          <p class="mb-1"><strong>Fase Rentan:</strong> {{ p.umur_tanaman[0] }}–{{ p.umur_tanaman[1] }} HST</p>
+          <p class="mb-2 text-muted">{{ p.deskripsi }}</p>
+          <strong>Penanganan (Kuratif):</strong>
+          <ul class="mb-2 ps-3 mt-1">
+            {% for l in p.pengobatan %}
+            <li>{{ l | safe }}</li>
+            {% endfor %}
+          </ul>
+          <strong style="color:var(--amber-dark)">Pencegahan (Preventif):</strong>
+          <ul class="mb-0 ps-3 mt-1">
+            {% for l in p.pencegahan %}
+            <li>{{ l | safe }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Tabel Rule ─────────────────────────────────── -->
+  <div class="section-title">Rule IF–THEN</div>
+  <div class="card mb-5">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover table-rule mb-0">
+          <thead>
+            <tr>
+              <th style="width:70px">Rule</th>
+              <th>Kondisi (IF)</th>
+              <th style="width:180px">Kesimpulan (THEN)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rule in rules %}
+            <tr class="rule-row">
+              <td>Rule {{ loop.index }}</td>
+              <td class="rule-cond">{{ rule.conditions | join(' <strong>AND</strong> ') | safe }}</td>
+              <td>
+                <span class="penyakit-pill">
+                  {{ rule.result }} – {{ penyakit[rule.result].nama }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mb-4">
+    <a href="{{ url_for('konsultasi') }}" class="btn btn-primary-green px-5 py-2">
+      <i class="bi bi-clipboard2-pulse me-2"></i>Mulai Konsultasi
+    </a>
+  </div>
+
+</div>
+{% endblock %}
