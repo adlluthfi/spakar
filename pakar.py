@@ -34,23 +34,54 @@ KELOMPOK_GEJALA = [
         'label': 'Gejala pada Daun',
         'icon': '🌿',
         'kode': ['G1', 'G3', 'G4', 'G5', 'G6', 'G7', 'G14', 'G15', 'G16', 'G17', 'G18'],
+        'folder': 'daun',
     },
     {
         'label': 'Gejala pada Pertumbuhan Tanaman',
         'icon': '🌱',
         'kode': ['G2'],
+        'folder': 'pertumbuhan',
     },
     {
         'label': 'Gejala pada Batang',
         'icon': '🪵',
         'kode': ['G8', 'G9', 'G10', 'G19'],
+        'folder': 'batang',
     },
     {
         'label': 'Gejala pada Tongkol',
         'icon': '🌽',
         'kode': ['G11', 'G12', 'G13'],
+        'folder': 'tongkol',
     },
 ]
+
+# ============================================================
+# MAPPING GAMBAR GEJALA
+# ============================================================
+# Format: 'kode_gejala': 'nama_file_gambar' (tanpa path, hanya nama file)
+# Gambar disimpan di: static/images/[folder_gejala]/[nama_file]
+GEJALA_IMAGES = {
+    'G1':  'G1.jpg',   # Daun menguning pucat
+    'G2':  'G2.jpg',   # Pertumbuhan tanaman menjadi kerdil
+    'G3':  'G3.jpg',   # Muncul bercak coklat kemerahan pada daun seperti karat
+    'G4':  'G4.jpg',   # Terdapat bercak titik-titik memanjang sempit
+    'G5':  'G5.jpg',   # Daun menguning dimulai dari ujung daun
+    'G6':  'G6.jpg',   # Daun mengering sebelum waktunya
+    'G7':  'G7.jpg',   # Muncul bercak memanjang berwarna coklat keabu-abuan
+    'G8':  'G8.jpg',   # Batang tanaman menjadi lunak dan berair
+    'G9':  'G9.jpg',   # Bagian dalam batang berwarna coklat
+    'G10': 'G10.jpg',  # Tanaman mudah roboh
+    'G11': 'G11.jpg',  # Tongkol jagung berjamur
+    'G12': 'G12.jpg',  # Tongkol mengeluarkan bau tidak sedap
+    'G13': 'G13.jpg',  # Tongkol mengalami pembusukan
+    'G14': 'G14.jpg',  # Daun tanaman berlubang
+    'G15': 'G15.jpg',  # Terdapat kotoran hama yang menyerupai serbuk
+    'G16': 'G16.jpg',  # Lapisan tepung putih/abu-abu di bawah daun
+    'G17': 'G17.jpg',  # Bercak pada daun terasa kasar atau timbul
+    'G18': 'G18.jpg',  # Kerusakan pada pucuk/titik tumbuh daun muda
+    'G19': 'G19.jpg',  # Lendir atau bau busuk menyengat pada pangkal batang
+}
 
 PENYAKIT = {
     'P1': {
@@ -309,7 +340,8 @@ def index():
 def konsultasi():
     return render_template('konsultasi.html',
                            gejala=GEJALA,
-                           kelompok=KELOMPOK_GEJALA)
+                           kelompok=KELOMPOK_GEJALA,
+                           gejala_images=GEJALA_IMAGES)
 
 
 @app.route('/diagnosa', methods=['POST'])
