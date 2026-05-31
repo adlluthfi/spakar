@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from chatbot import JaguKnowledgeBase
 
 app = Flask(__name__)
 
@@ -212,6 +213,11 @@ PENYAKIT = {
     },
 }
 
+# ============================================================
+# RE-INITIALIZE CHATBOT DENGAN DATA PENYAKIT & GEJALA
+# ============================================================
+kb = JaguKnowledgeBase(penyakit_data=PENYAKIT, gejala_data=GEJALA)
+
 # Rule IF–THEN dengan gejala pembeda tambahan (G16–G19 memperkuat diagnosis)
 RULES = [
     {'conditions': ['G1', 'G2', 'G16'], 'result': 'P1'},  # Rule 1 – Bulai (+ lapisan tepung putih)
@@ -375,6 +381,30 @@ def basis_pengetahuan():
                            penyakit=PENYAKIT,
                            gejala=GEJALA,
                            rules=RULES)
+
+
+@app.route('/chatbot')
+def chatbot_page():
+    """Halaman chatbot interaktif."""
+    return render_template('chatbot.html')
+
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    """API endpoint untuk chatbot."""
+    data = request.get_json()
+    user_message = data.get('message', '').strip()
+
+    if not user_message:
+        return jsonify({
+            'success': False,
+            'message': 'Silakan masukkan pesan.',
+            'type': 'error',
+        })
+
+    # Get response dari knowledge base
+    response = kb.get_response(user_message)
+    return jsonify(response)
 
 
 if __name__ == '__main__':

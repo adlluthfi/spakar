@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+{% block title %}Chatbot Jagung – Sistem Pakar Penyakit Jagung{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Chat container */
+    .chat-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, #2d6a4f, #52b788);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+    }
+
+    .chat-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chat-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    /* Chat messages area */
+    .chat-messages {
+        height: 500px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .chat-message {
+        display: flex;
+        gap: 0.75rem;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .message-avatar.user {
+        background: #e8f5e9;
+        color: #2d6a4f;
+    }
+
+    .message-avatar.bot {
+        background: #f0f4f9;
+        color: #1b4332;
+    }
+
+    .message-content {
+        flex: 1;
+    }
+
+    .message-bubble {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        word-wrap: break-word;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .message-bubble.user {
+        background: #2d6a4f;
+        color: white;
+        border-radius: 12px 4px 12px 12px;
+    }
+
+    .message-bubble.bot {
+        background: #f5f5f5;
+        color: #333;
+        border-radius: 4px 12px 12px 12px;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.25rem;
+        padding: 0 1rem;
+    }
+
+    .message-bubble.error {
+        background: #ffebee;
+        color: #c62828;
+        border-left: 3px solid #d32f2f;
+    }
+
+    .message-bubble.faq {
+        background: #fff3e0;
+        color: #e65100;
+        border-left: 3px solid #ff6f00;
+    }
+
+    .message-bubble.disease-response {
+        background: #e3f2fd;
+        color: #1565c0;
+        border-left: 4px solid #2196f3;
+        font-size: 0.9rem;
+    }
+
+    /* Chat form */
+    .chat-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .chat-input {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: #2d6a4f;
+        box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.1);
+    }
+
+    .chat-btn {
+        background: #2d6a4f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .chat-btn:hover {
+        background: #1b4332;
+    }
+
+    .chat-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* Loading indicator */
+    .chat-loading {
+        display: flex;
+        gap: 0.3rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .chat-loading span {
+        width: 8px;
+        height: 8px;
+        background: #2d6a4f;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite;
+    }
+
+    .chat-loading span:nth-child(1) {
+        animation-delay: 0s;
+    }
+
+    .chat-loading span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .chat-loading span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        60%,
+        100% {
+            transform: translateY(0);
+        }
+
+        30% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Empty state */
+    .chat-empty {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+    }
+
+    .chat-empty i {
+        font-size: 2rem;
+        color: #ddd;
+        margin-bottom: 0.5rem;
+    }
+
+    .chat-empty p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* Scrollbar styling */
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: #2d6a4f;
+        border-radius: 10px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: #1b4332;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <!-- Header -->
+    <div class="chat-header">
+        <h2>🤖💬 Tanya Pakar Jagung</h2>
+        <p>Saya siap membantu Anda menyelesaikan masalah tanaman jagung 🌽</p>
+    </div>
+
+    <!-- Chat messages -->
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty">
+            <i class="bi bi-chat-dots"></i>
+            <p>Mulai percakapan! 👋 Tanya tentang:<br>🌾 Penanaman • 🦠 Penyakit • 📚 Varietas • 🥗 Pupuk</p>
+        </div>
+    </div>
+
+    <!-- Chat form -->
+    <form class="chat-form" id="chatForm" onsubmit="sendMessage(event)">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Ketik pertanyaan Anda..."
+            autocomplete="off" />
+        <button type="submit" class="chat-btn" id="chatBtn">
+            <i class="bi bi-send"></i> Kirim
+        </button>
+    </form>
+</div>
+
+<script>
+    let isLoading = false;
+
+    function addMessage(text, type = 'bot', messageType = null, time = true) {
+        const messagesDiv = document.getElementById('chatMessages');
+
+        // Clear empty state
+        if (messagesDiv.querySelector('.chat-empty')) {
+            messagesDiv.innerHTML = '';
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message';
+
+        const avatar = document.createElement('div');
+        avatar.className = `message-avatar ${type}`;
+        avatar.textContent = type === 'user' ? '👤' : messageType === 'disease' ? '🔬' : '🤖';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        const bubble = document.createElement('div');
+        bubble.className = `message-bubble ${type}${messageType === 'disease' ? ' disease-response' : ''}`;
+
+        // Format text dengan support newlines dan emoji
+        text = text.trim();
+        // Escape HTML tapi preserve newlines
+        const escapedText = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        // Convert newlines ke <br>
+        const formattedText = escapedText.replace(/\n/g, '<br>');
+        bubble.innerHTML = formattedText;
+
+        contentDiv.appendChild(bubble);
+
+        if (time) {
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            const now = new Date();
+            timeDiv.textContent = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            contentDiv.appendChild(timeDiv);
+        }
+
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(contentDiv);
+        messagesDiv.appendChild(messageDiv);
+
+        // Scroll ke bawah
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function addLoading() {
+        const messagesDiv = document.getElementById('chatMessages');
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message';
+        messageDiv.id = 'loadingMessage';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar bot';
+        avatar.textContent = '🤖';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        const loading = document.createElement('div');
+        loading.className = 'chat-loading message-bubble bot';
+        loading.innerHTML = '<span></span><span></span><span></span>';
+
+        contentDiv.appendChild(loading);
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(contentDiv);
+        messagesDiv.appendChild(messageDiv);
+
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function removeLoading() {
+        const loading = document.getElementById('loadingMessage');
+        if (loading) loading.remove();
+    }
+
+    async function sendMessage(e) {
+        e.preventDefault();
+
+        if (isLoading) return;
+
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+
+        if (message) {
+            // Add user message
+            addMessage(message, 'user', null, true);
+            input.value = '';
+
+            isLoading = true;
+            document.getElementById('chatBtn').disabled = true;
+            addLoading();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                removeLoading();
+
+                if (data.success) {
+                    // Format message
+                    let displayText = data.message;
+
+                    // Add confidence if available and not disease type
+                    if (data.confidence && data.type !== 'disease') {
+                        displayText = `${displayText}\n\n✓ Kecocokan: ${data.confidence}`;
+                    }
+
+                    addMessage(displayText, 'bot', data.type, true);
+                } else {
+                    addMessage(data.message, 'bot', null, true);
+                }
+            } catch (error) {
+                removeLoading();
+                addMessage('Terjadi kesalahan saat menghubungi server.', 'bot');
+                console.error('Error:', error);
+            }
+
+            isLoading = false;
+            document.getElementById('chatBtn').disabled = false;
+            document.getElementById('chatInput').focus();
+        }
+    }
+</script>
+{% endblock %}
