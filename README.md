@@ -508,6 +508,7 @@ Jika `kb = JaguKnowledgeBase(...)` ditulis sebelum `RULES`, chatbot belum bisa m
 Nama:
 - **Abdullah Lutfi**
 - **Daniel Febrian Sijabat**
+
 Mata Kuliah: **Sistem Pakar dan Bahasa Alamiah**  
 Program Studi: **Informatika**  
 Project: **Sistem Pakar Diagnosa Penyakit Tanaman Jagung dengan Integrasi NLP**
