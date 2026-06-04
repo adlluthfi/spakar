@@ -216,7 +216,7 @@ PENYAKIT = {
 # ============================================================
 # RE-INITIALIZE CHATBOT DENGAN DATA PENYAKIT & GEJALA
 # ============================================================
-kb = JaguKnowledgeBase(penyakit_data=PENYAKIT, gejala_data=GEJALA)
+# kb = JaguKnowledgeBase(penyakit_data=PENYAKIT, gejala_data=GEJALA)
 
 # Rule IF–THEN dengan gejala pembeda tambahan (G16–G19 memperkuat diagnosis)
 RULES = [
@@ -227,6 +227,12 @@ RULES = [
     {'conditions': ['G11', 'G12', 'G13'],       'result': 'P5'},  # Rule 5 – Busuk Tongkol
     {'conditions': ['G14', 'G15', 'G18'],       'result': 'P6'},  # Rule 6 – Ulat Grayak (+ kerusakan pucuk)
 ]
+
+kb = JaguKnowledgeBase(
+    penyakit_data=PENYAKIT,
+    gejala_data=GEJALA,
+    rules_data=RULES
+)
 
 # ============================================================
 # INFERENCE ENGINE (Backward Chaining)
@@ -268,11 +274,74 @@ def _prove_goal(goal: str, facts: set[str], visited: set[str] | None = None) -> 
     return False
 
 
+# def backward_chaining(gejala_dipilih: list[str], umur_hst: int | None = None) -> list[dict]:
+#     """
+#     Inferensi backward chaining.
+#     Sistem menguji tiap hipotesis penyakit (goal) berdasarkan rule IF-THEN,
+#     lalu memeriksa apakah seluruh gejala prasyarat dapat dibuktikan dari fakta input.
+#     """
+#     fakta = set(gejala_dipilih)
+#     hasil = []
+
+#     for rule in RULES:
+#         total = len(rule['conditions'])
+#         gejala_cocok = [g for g in rule['conditions'] if g in fakta]
+#         gejala_kurang = [g for g in rule['conditions'] if g not in fakta]
+#         matched = len(gejala_cocok)
+
+#         # Sembunyikan hipotesis yang sama sekali tidak didukung fakta.
+#         if matched == 0:
+#             continue
+
+#         is_terbukti = _prove_goal(rule['result'], fakta)
+#         persen = round((matched / total) * 100)
+
+#         if is_terbukti:
+#             label_confidence, confidence_level = 'Terdiagnosis', 'high'
+#         else:
+#             label_confidence, confidence_level = _confidence_label(persen)
+
+#         penyakit = PENYAKIT[rule['result']]
+#         umur_warning = None
+#         if umur_hst is not None:
+#             fase_min, fase_max = penyakit['umur_tanaman']
+#             if not (fase_min <= umur_hst <= fase_max):
+#                 umur_warning = (
+#                     f'Penyakit ini umumnya menyerang pada umur '
+#                     f'{fase_min}–{fase_max} HST, '
+#                     f'sementara tanaman Anda berumur {umur_hst} HST. '
+#                     f'Pertimbangkan diagnosis ini dengan hati-hati.'
+#                 )
+
+#         hasil.append({
+#             'kode': rule['result'],
+#             'rule_conditions': rule['conditions'],
+#             'gejala_cocok': gejala_cocok,
+#             'gejala_kurang': gejala_kurang,
+#             'persen': persen,
+#             'matched': matched,
+#             'total': total,
+#             'is_terbukti': is_terbukti,
+#             'status_backward': 'Terbukti' if is_terbukti else 'Belum Terbukti',
+#             'label_confidence': label_confidence,
+#             'confidence_level': confidence_level,
+#             'umur_warning': umur_warning,
+#             **penyakit,
+#         })
+
+#     # Hipotesis terbukti ditaruh paling atas, lalu sisanya berdasar kecocokan terbesar.
+#     hasil.sort(key=lambda x: (x['is_terbukti'], x['persen']), reverse=True)
+#     return hasil
+
 def backward_chaining(gejala_dipilih: list[str], umur_hst: int | None = None) -> list[dict]:
     """
     Inferensi backward chaining.
-    Sistem menguji tiap hipotesis penyakit (goal) berdasarkan rule IF-THEN,
-    lalu memeriksa apakah seluruh gejala prasyarat dapat dibuktikan dari fakta input.
+    Sistem menguji setiap hipotesis penyakit berdasarkan rule IF-THEN,
+    kemudian hanya mengambil 1 diagnosis terbaik berdasarkan:
+    1. Rule yang terbukti lengkap
+    2. Persentase kecocokan tertinggi
+    3. Kesesuaian umur tanaman
+    4. Jumlah gejala yang cocok
     """
     fakta = set(gejala_dipilih)
     hasil = []
@@ -283,7 +352,7 @@ def backward_chaining(gejala_dipilih: list[str], umur_hst: int | None = None) ->
         gejala_kurang = [g for g in rule['conditions'] if g not in fakta]
         matched = len(gejala_cocok)
 
-        # Sembunyikan hipotesis yang sama sekali tidak didukung fakta.
+        # Jika tidak ada satu pun gejala yang cocok, penyakit ini tidak dipertimbangkan
         if matched == 0:
             continue
 
@@ -296,10 +365,15 @@ def backward_chaining(gejala_dipilih: list[str], umur_hst: int | None = None) ->
             label_confidence, confidence_level = _confidence_label(persen)
 
         penyakit = PENYAKIT[rule['result']]
+
         umur_warning = None
+        umur_sesuai = True
+
         if umur_hst is not None:
             fase_min, fase_max = penyakit['umur_tanaman']
-            if not (fase_min <= umur_hst <= fase_max):
+            umur_sesuai = fase_min <= umur_hst <= fase_max
+
+            if not umur_sesuai:
                 umur_warning = (
                     f'Penyakit ini umumnya menyerang pada umur '
                     f'{fase_min}–{fase_max} HST, '
@@ -320,12 +394,28 @@ def backward_chaining(gejala_dipilih: list[str], umur_hst: int | None = None) ->
             'label_confidence': label_confidence,
             'confidence_level': confidence_level,
             'umur_warning': umur_warning,
+            'umur_sesuai': umur_sesuai,
             **penyakit,
         })
 
-    # Hipotesis terbukti ditaruh paling atas, lalu sisanya berdasar kecocokan terbesar.
-    hasil.sort(key=lambda x: (x['is_terbukti'], x['persen']), reverse=True)
-    return hasil
+    # Jika tidak ada penyakit yang cocok sama sekali
+    if not hasil:
+        return []
+
+    # Pilih hanya 1 diagnosis terbaik
+    hasil.sort(
+        key=lambda x: (
+            x['is_terbukti'],   # prioritas 1: rule terbukti lengkap
+            x['persen'],        # prioritas 2: persentase kecocokan
+            x['umur_sesuai'],   # prioritas 3: umur tanaman sesuai
+            x['matched']        # prioritas 4: jumlah gejala cocok
+        ),
+        reverse=True
+    )
+
+    # Kembalikan hanya diagnosis terbaik
+    return [hasil[0]]
+
 
 # ============================================================
 # ROUTES

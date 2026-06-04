@@ -116,54 +116,6 @@
     z-index: 100;
     box-shadow: 0 -4px 16px rgba(0,0,0,.1);
   }
-
-  /* Modal peringatan input kosong */
-  .empty-warning-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: #fff3cd;
-    color: #e76f51;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.3rem;
-    margin: 0 auto 1rem;
-    box-shadow: 0 8px 20px rgba(231, 111, 81, .18);
-  }
-
-  .empty-warning-modal .modal-content {
-    border: 0;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, .18);
-  }
-
-  .empty-warning-modal .modal-header {
-    background: linear-gradient(135deg, #1b4332, #2d6a4f);
-    color: #fff;
-    border-bottom: 0;
-  }
-
-  .empty-warning-modal .modal-body {
-    padding: 2rem;
-  }
-
-  .empty-warning-modal .btn-primary-green {
-    padding: .65rem 1.25rem;
-  }
-
-  .sticky-bar.warning-shake {
-    animation: warningShake .35s ease-in-out;
-    border-top-color: #e76f51;
-  }
-
-  @keyframes warningShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-  }
-
 </style>
 {% endblock %}
 
@@ -307,36 +259,6 @@
     </div>
 
   </form>
-
-  <!-- Modal peringatan jika user belum memilih gejala -->
-  <div class="modal fade empty-warning-modal" id="modalGejalaKosong" tabindex="-1"
-       aria-labelledby="modalGejalaKosongLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="modalGejalaKosongLabel">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>Gejala Belum Dipilih
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                  aria-label="Tutup"></button>
-        </div>
-        <div class="modal-body text-center">
-          <div class="empty-warning-icon">
-            <i class="bi bi-clipboard2-x-fill"></i>
-          </div>
-          <h5 class="fw-bold mb-2">Silakan pilih gejala terlebih dahulu</h5>
-          <p class="text-muted mb-4">
-            Tolong inputkan gejala-gejala yang terlihat pada tanaman jagung Anda
-            agar sistem dapat melakukan proses diagnosa penyakit dengan benar.
-          </p>
-          <button type="button" class="btn btn-primary-green" data-bs-dismiss="modal">
-            <i class="bi bi-check-circle me-1"></i>Baik, Saya Pilih Gejala
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 {% endblock %}
@@ -355,20 +277,12 @@
     updateCounter();
   }
 
-  // Tampilkan pop-up menarik jika user menekan Diagnosa tanpa memilih gejala
+  // Warn before submit if nothing selected
   document.getElementById('formKonsultasi').addEventListener('submit', function(e) {
     const checked = document.querySelectorAll('.gejala-check:checked').length;
-
     if (checked === 0) {
       e.preventDefault();
-
-      const modalElement = document.getElementById('modalGejalaKosong');
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-
-      const stickyBar = document.querySelector('.sticky-bar');
-      stickyBar.classList.add('warning-shake');
-      setTimeout(() => stickyBar.classList.remove('warning-shake'), 400);
+      alert('Silakan pilih minimal satu gejala terlebih dahulu.');
     }
   });
 </script>
